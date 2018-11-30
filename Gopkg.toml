@@ -2,9 +2,9 @@
   go-tests = true
   unused-packages = true
 
-[[constraint]]
-  name = "github.com/goombaio/dag"
-  version = "0.0.14"
+#[[constraint]]
+#  name = "github.com/goombaio/dag"
+#  version = "0.0.14"
 
 [[constraint]]
   branch = "master"
@@ -13,3 +13,27 @@
 [[constraint]]
   name = "github.com/apex/log"
   version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/goombaio/orderedmap"
+  version = "0.0.14"
+
+[[constraint]]
+  name = "github.com/goombaio/orderedset"
+  version = "0.0.6"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/chrislusf/glow"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/chrislusf/gleam"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/ulule/deepcopier"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/jinzhu/copier"

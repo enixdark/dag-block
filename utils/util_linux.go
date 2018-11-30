@@ -1,6 +1,6 @@
 // +build linux
 
-package util
+package utils
 
 import (
 	"syscall"
