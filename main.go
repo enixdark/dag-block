@@ -4,102 +4,23 @@ import (
 
 	"fmt"
 	"os"
-	"time"
 	"strconv"
 	"strings"
 
-	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/filter"
 	"github.com/syndtr/goleveldb/leveldb/opt"
-	"github.com/syndtr/goleveldb/leveldb/util"
 	"github.com/enixdark/dag-block/dag"
-	//"github.com/chrislusf/glow/flow"
-	//"github.com/enixdark/dag-block/sources"
 	"github.com/enixdark/dag-block/utils"
-	//"github.com/enixdark/dag-block/sources"
+	"github.com/enixdark/dag-block/db"
+	"github.com/enixdark/dag-block/db/leveldb"
 )
 
 type ID string
 
 type DAG struct {
-	path   string
-	db     *leveldb.DB
-	option *opt.Options
+	db     *db.DB
 	memory *dag.DAG
 	worker chan string
-}
-
-func (dg *DAG) Open() *leveldb.DB {
-
-	database, err := leveldb.OpenFile(dg.path, dg.option)
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(0)
-	}
-
-	dg.db = database
-	return database
-}
-
-func (dg *DAG) Get(key string) ([]byte, error) {
-
-	data, err := dg.db.Get([]byte(key), nil)
-	if err != nil {
-		fmt.Println("Can't get data")
-		return nil, err
-	} else {
-		fmt.Println(data)
-		return data, nil
-	}
-}
-
-func (dg *DAG) Put(key string, value string, unique bool) bool {
-	key_store := key
-	if unique == false {
-		key_store += fmt.Sprintf(":%d", time.Now().Unix())
-	}
-	err := dg.db.Put([]byte(key_store), []byte(value), nil)
-
-	if err != nil {
-		fmt.Println("Can't not insert data")
-		return false
-	}
-
-	return true
-}
-
-func (dg *DAG) Seek(regex_key string) {
-
-	iter := dg.db.NewIterator(util.BytesPrefix([]byte(regex_key)), nil)
-
-	for iter.Next() {
-		fmt.Println(string(iter.Key()))
-	}
-
-	iter.Release()
-	err := iter.Error()
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-}
-
-func (dg *DAG) Traversal() {
-	iter := dg.db.NewIterator(nil, nil)
-	for iter.Next() {
-		// Remember that the contents of the returned slice should not be modified, and
-		// only valid until the next call to Next.
-		fmt.Println(string(iter.Key()) + "  " + string(iter.Value()))
-	}
-
-	iter.Release()
-	err := iter.Error()
-
-	if err != nil {
-		fmt.Println(err)
-	}
 }
 
 //// Count number of ancestors/progeny (children of children) of any given vertex.
@@ -126,7 +47,7 @@ func (dg *DAG) List(id interface{}) *utils.OrderedSet {
 
 func (dg *DAG) ConditionalList(id interface{}, flagCondition bool) *utils.OrderedSet {
 	var set * utils.OrderedSet = utils.NewOrderedSet()
-	vid, _ := dg.Get("C:"+id.(string))
+	vid, _ := dg.db.Db.Get("C:"+id.(string))
 
 	if vid != nil {
 		ids := strings.Split(string(vid), ",")
@@ -167,48 +88,53 @@ func (dg *DAG) Insert(vertex *dag.Vertex) {
 		parent_vertex := dg.memory.GetRamdomVertex()
 		if parent_vertex != vertex {
 			dg.memory.AddEdge(parent_vertex, vertex)
-			//dg.SyncDb(parent_vertex, vertex)
+			dg.SyncDb(parent_vertex, vertex)
 		}
 	}
 }
 
 func (dg *DAG) SyncDb(parent *dag.Vertex, child *dag.Vertex) {
 
-	parent_data, _ := dg.Get("C:"+parent.ID)
+	parent_data, _ := dg.db.Db.Get("C:"+parent.ID)
 
 	if parent_data != nil {
-		dg.Put("C:"+parent.ID, string(parent_data) + "," + child.ID, true)
+		dg.db.Db.Put("C:"+parent.ID, string(parent_data) + "," + child.ID, true)
 	} else {
-		dg.Put("C:"+parent.ID, child.ID, true)
+		dg.db.Db.Put("C:"+parent.ID, child.ID, true)
 	}
 
-	child_data, _ := dg.Get("P:"+child.ID)
+	child_data, _ := dg.db.Db.Get("P:"+child.ID)
 
 	if child_data != nil {
-		dg.Put("P:"+child.ID, string(child_data) + "," + parent.ID, true)
+		dg.db.Db.Put("P:"+child.ID, string(child_data) + "," + parent.ID, true)
 	} else {
-		dg.Put("P:"+child.ID, parent.ID, true)
+		dg.db.Db.Put("P:"+child.ID, parent.ID, true)
 	}
 }
 
 func main() {
 
 	//var err error
-	//os.RemoveAll("./data/db")
+	os.RemoveAll("./data/db")
+
+	option := dag_leveldb.LevelOption{
+		Options: &opt.Options{
+			Filter: filter.NewBloomFilter(10),
+		},
+		Path: "./data/db",
+	}
+
+	db := db.NewDatabase("leveldb", option)
 
 	dg := DAG{
-		option: &opt.Options{
-			Filter: filter.NewBloomFilter(100),
-		},
-		path: "./data/db",
+		db: &db,
 		worker: make(chan string),
 	}
 
 	dg.memory = dag.NewDAG()
+	dg.db.Db.Connection()
 
-	dg.Open()
-
-	defer dg.db.Close()
+	defer dg.db.Db.Close()
 
 	for i := 1; i < 100; i++ {
 		vertex := dag.NewVertex(strconv.Itoa(i), nil)
@@ -216,6 +142,9 @@ func main() {
 		dg.Insert(vertex)
 	}
 
-	fmt.Println(dg.List("2"))
+	fmt.Println(dg.List("4"))
+
+
+
 
 }
