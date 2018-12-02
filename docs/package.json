@@ -1,0 +1,29 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "This respository holds the API reference available at [https://backend.midasprotocol.com](https://backend.midasprotocol.com).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "standard-changelog"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git.midasprotocol.com/midas-dev/midas-wallet-docs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@commitlint/cli": "^7.0.0",
+    "@commitlint/config-conventional": "^7.0.1",
+    "husky": "^1.0.0-rc.13",
+    "standard-changelog": "^2.0.1",
+    "swagger-cli": "^2.1.1"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}

@@ -2,6 +2,10 @@
 
 ##### This project is implemented to simulate Directed acyclic graph with store data in database
 
+
+![Simple architecture](dag.png)
+
+
 ### Requirement:
 
 - Go >= 1.11

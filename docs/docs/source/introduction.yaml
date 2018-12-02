@@ -1,0 +1,31 @@
+
+
+openapi: '3.0.1'
+info:
+  version: 1.0.0
+  title: DAG document
+  license:
+    name: MIT
+  termsOfService: 'https://localhost/default-terms/'
+  contact:
+    email: cqshinn92@gmail.com
+  x-logo:
+    url: ""
+    backgroundColor: '#FFFFFF'
+
+tags:
+  - name: introduction
+    description: |
+      Document
+
+x-tagGroups:
+  - name: Introduction
+    tags:
+      - introduction
+
+paths:
+  /ping:
+    get:
+      responses:
+        '200':
+          description: OK
