@@ -5,7 +5,7 @@ import (
 	"sync"
 	"math/rand"
 
-	"github.com/enixdark/dag-block/utils"
+	"github.com/enixdark/dag-block/lib/utils"
 
 )
 

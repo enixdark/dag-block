@@ -3,7 +3,7 @@ package dag
 import (
 	"fmt"
 
-	"github.com/enixdark/dag-block/utils"
+	"github.com/enixdark/dag-block/lib/utils"
 )
 
 // Vertex type implements a vertex of a Directed Acyclic graph or DAG.

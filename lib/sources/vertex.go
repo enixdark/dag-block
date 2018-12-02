@@ -3,8 +3,8 @@ package sources
 import (
 
 	"github.com/chrislusf/glow/flow"
-	"github.com/enixdark/dag-block/utils"
-	"github.com/enixdark/dag-block/dag"
+	"github.com/enixdark/dag-block/lib/utils"
+	"github.com/enixdark/dag-block/lib/dag"
 )
 
 func GenerateVertexSource(f *flow.FlowContext, data *utils.OrderedSet, shard int) *flow.Dataset {

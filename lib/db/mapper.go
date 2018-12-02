@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/enixdark/dag-block/db/leveldb"
+	"github.com/enixdark/dag-block/lib/db/leveldb"
 )
 
 type DB struct {
